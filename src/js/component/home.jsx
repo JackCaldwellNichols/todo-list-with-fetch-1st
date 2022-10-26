@@ -45,9 +45,26 @@ const Home = () => {
 
 const deleteList = () => {	
 	fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
+  method: "PUT",
+ 
+})
+.then(resp => {
+	setItems([]);
+	return resp.json(); 
+})
+
+.catch(error => {
+	//error handling
+	console.log(error);
+});
+}
+
+const removeUser = () => {	
+	fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
   method: "DELETE",
  
 })
+
 .then(resp => {
 	setItems([]);
 	return resp.json(); 
@@ -105,11 +122,18 @@ const deleteList = () => {
 								<li>You have  {items.length } item(s) left</li>
 								<li className="list-group-item text-center">
 									<button
-										className="btn btn-outline-danger btn-sm"
+										className="btn btn-outline-warning btn-sm"
 										onClick={() => {
 											deleteList();
 										}}>
-										Remove user
+										Clear list
+									</button>
+									<button
+										className="btn btn-outline-danger btn-sm ms-3"
+										onClick={()  => {
+											removeUser();
+										}}>
+										Remove User
 									</button>
 								</li>
 					</ul>
