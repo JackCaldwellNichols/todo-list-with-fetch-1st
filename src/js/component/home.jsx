@@ -11,41 +11,53 @@ const Home = () => {
 	const [task, setTask] = useState('');
 	const [items, setItems] = useState([]);
 
-	const getList = (items) => {
-		var requestOptions = {
-			method: 'GET',
-			redirect: 'follow'
-		  };
-		  
-		  fetch("https://assets.breatheco.de/apis/fake/todos/user/jack1987", requestOptions)
-			.then(response => response.text())
+
+		 const getList = () => {
+		  fetch("https://assets.breatheco.de/apis/fake/todos/user/jack1987")
+		  	.then(response => {
+				if(response.ok) {console.log("Success")}
+			})
+			.then(response => response.json())
 			.then(result => console.log(result))
 			.catch(error => console.log('error', error));		
-	};
+		} 
 
-	const updateList = () => {
+		const updateList = () => {	
+		fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
+      method: "PUT",
+      body: JSON.stringify(items),
+      headers: {
+        "Content-Type": "application/json"
+      }
+    })
+    .then(resp => {
+        console.log(resp.status); // the status code = 200 or code = 400 etc.
+        console.log(resp.text()); // will try return the exact result as string
+       // return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
+    })
+    .then(data => {
+        console.log(data); //this will print on the console the exact object received from the server
+    })
+    .catch(error => {
+        console.log(error);
+    });
+}
 
-		var requestOptions = {
-			method: 'PUT',
-			body: JSON.stringify(items),
-			redirect: 'follow'
-		  };
-		  
-		  fetch("https://assets.breatheco.de/apis/fake/todos/user/jack1987", requestOptions)
-			.then(response => response.text())
-			.then(result => console.log(result))
-			.catch(error => console.log('error', error));
-		}
+const deleteList = () => {	
+	fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
+  method: "DELETE",
+ 
+})
+.then(resp => {
+	setItems([]);
+	return resp.json(); 
+})
 
-	useEffect(() => {
-		getList(items);
-	}, []);
-
-
-	useEffect(() => {
-		updateList();
-	},[addTask]); 
-
+.catch(error => {
+	//error handling
+	console.log(error);
+});
+}
 
 	//helper funtions
 	const handleKeyDown = (event) => {
@@ -61,7 +73,7 @@ const Home = () => {
 
 		const item = {
 			id: Math.floor(Math.random()*1000),
-			value: task
+			label: task, done: false
 		}
 		setItems(oldList => [...oldList, item]) 
 		setTask("");
@@ -72,7 +84,13 @@ const Home = () => {
 		setItems(newArray);
 	}
 
-
+	useEffect(()=>{
+		getList(setItems);
+	},[])
+	
+	useEffect(()=>{
+		updateList(items)
+	},[items])
 
 	   return (
 			<div className="container">					
@@ -81,13 +99,23 @@ const Home = () => {
 					<input className = "input" type="text" placeholder="enter your task..." value ={task} onChange={e => setTask(e.target.value)} onKeyDown={handleKeyDown}></input>
 						{items.map(item => {
 							return (
-								<li key={item.id}>{item.value}<button className="delete" onClick={() => deleteItems(item.id)}><FontAwesomeIcon icon={faTrashCan}> </FontAwesomeIcon></button></li>		
+								<li key={item.id}>{item.label}<button className="delete" onClick={() => deleteItems(item.id)}><FontAwesomeIcon icon={faTrashCan}> </FontAwesomeIcon></button></li>		
 							)
 						})}
-								<li>{items.length + " items left"}</li>
+								<li>You have  {items.length } item(s) left</li>
+								<li className="list-group-item text-center">
+									<button
+										className="btn btn-outline-danger btn-sm"
+										onClick={() => {
+											deleteList();
+										}}>
+										Remove user
+									</button>
+								</li>
 					</ul>
 			</div>
 	   )
 	};
 
 export default Home;
+
