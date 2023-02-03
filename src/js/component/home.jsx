@@ -12,36 +12,32 @@ const Home = () => {
 	const [items, setItems] = useState([]);
 
 
-		 const getList = () => {
-		  fetch("https://assets.breatheco.de/apis/fake/todos/user/jack1987")
-		  	.then(response => {
-				if(response.ok) {console.log("Success")}
-			})
-			.then(response => response.json())
-			.then(result => console.log(result))
-			.catch(error => console.log('error', error));		
+		const getList = async () => {
+		   const res = await fetch("https://assets.breatheco.de/apis/fake/todos/user/jack1987")
+		   const data = await res.json()
+			console.log("&&&&", data)
+			setItems(data)
 		} 
 
-		const updateList = () => {	
-		fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
-      method: "PUT",
-      body: JSON.stringify(items),
-      headers: {
-        "Content-Type": "application/json"
-      }
-    })
-    .then(resp => {
-        console.log(resp.status); // the status code = 200 or code = 400 etc.
-        console.log(resp.text()); // will try return the exact result as string
+		const updateList = async () => {
+		try {
+			const response = await fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
+				method: "PUT",
+				body: JSON.stringify(items),
+				headers: {
+					"Content-Type": "application/json"
+				}
+				})
+				const data = (response => {
+				console.log("RESPONSE",response.status); // the status code = 200 or code = 400 etc.
+				
+				setItems(data) // will try return the exact result as string
        // return resp.json(); // (returns promise) will try to parse the result as json as return a promise that you can .then for results
     })
-    .then(data => {
-        console.log(data); //this will print on the console the exact object received from the server
-    })
-    .catch(error => {
+	}catch(error){
         console.log(error);
-    });
-}
+    	};
+	}
 
 const deleteList = () => {	
 	fetch('https://assets.breatheco.de/apis/fake/todos/user/jack1987', {
@@ -98,11 +94,17 @@ const removeUser = () => {
 
 	function deleteItems(id) {
 		const newArray = items.filter(item => item.id !== id)
-		setItems(newArray);
+		if(newArray.length >= 1){
+			setItems(newArray)
+		}else{
+			setItems([])
+			console.log(items)
+		}
+		
 	}
 
 	useEffect(()=>{
-		getList(setItems);
+		getList()
 	},[])
 	
 	useEffect(()=>{
@@ -114,12 +116,12 @@ const removeUser = () => {
 				<h1>ToDo List</h1>
 					<ul>
 					<input className = "input" type="text" placeholder="enter your task..." value ={task} onChange={e => setTask(e.target.value)} onKeyDown={handleKeyDown}></input>
-						{items.map(item => {
+						{items.map((item) => {
 							return (
 								<li key={item.id}>{item.label}<button className="delete" onClick={() => deleteItems(item.id)}><FontAwesomeIcon icon={faTrashCan}> </FontAwesomeIcon></button></li>		
 							)
 						})}
-								<li>You have  {items.length } item(s) left</li>
+								<li>You have {items?.length} item(s) left</li>
 								<li className="list-group-item text-center">
 									<button
 										className="btn btn-outline-warning btn-sm"
